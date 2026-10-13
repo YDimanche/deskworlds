@@ -4,6 +4,7 @@ import { preferredQuality, reportSceneError } from '../../shared/controls.js';
 import { createFrameLoop } from '../../shared/frame-loop.js';
 import { randomGenerator } from '../../shared/random.js';
 import { createPlasma, fingerTip, FIXED_STEP } from './plasma.js';
+import { createStrike } from './strike.js';
 import { createRenderer } from './render.js';
 
 const canvas = document.querySelector('#scene'), stage = document.querySelector('#stage'), loading = document.querySelector('#loading');
@@ -24,7 +25,8 @@ async function start() {
   // A capture is repeatable; a visit is not.
   const seed = capture ? 1 : Math.floor(Math.random() * 2 ** 32);
   const plasma = createPlasma({ random: randomGenerator(seed) });
-  const { renderer, camera, render: draw, resize: sizeTargets, dispose } = createRenderer(canvas, plasma);
+  const strike = createStrike();
+  const { renderer, camera, render: draw, resize: sizeTargets, dispose } = createRenderer(canvas, plasma, strike);
   const ray = new Vector3();
   let loop = null, accumulator = 0, frames = 0, zeroSize = false;
   let cpuEMA = 0, slowSamples = 0, autoScale = 1, ratio = 1;
@@ -44,6 +46,7 @@ async function start() {
   function render() {
     if (contextLost || disposed || document.hidden) return;
     plasma.build();
+    strike.build();
     draw();
     frames++;
     if (!loading.hidden) loading.hidden = true;
@@ -52,7 +55,7 @@ async function start() {
     const before = performance.now();
     accumulator += elapsed;
     let steps = 0;
-    while (accumulator >= FIXED_STEP && steps < 6) { plasma.step(FIXED_STEP); accumulator -= FIXED_STEP; steps++; }
+    while (accumulator >= FIXED_STEP && steps < 6) { plasma.step(FIXED_STEP); strike.step(FIXED_STEP); accumulator -= FIXED_STEP; steps++; }
     if (steps === 6) accumulator = 0;
     render();
     if (!running()) return;
@@ -117,6 +120,31 @@ async function start() {
   render();
   loop = createFrameLoop(renderFrame, { fps: fps(), paused, hidden: document.hidden || contextLost || zeroSize });
   restart();
+
+  // The host electrocutes a desktop icon: a bolt leaps from the glass to the
+  // double-clicked point, carried into the room on the plane facing the camera.
+  const strikeRay = new Vector3();
+  function strikeTarget(x, y) {
+    const rect = canvas.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return null;
+    strikeRay.set(((x - rect.left) / rect.width) * 2 - 1, -((y - rect.top) / rect.height) * 2 + 1, 0.5)
+      .unproject(camera).sub(camera.position).normalize();
+    const distance = camera.position.length();
+    if (!(distance > 0)) return null;
+    const along = strikeRay.dot(camera.position) / distance;
+    if (!(along < -1e-4)) return null;
+    const t = -distance / along;
+    return {
+      x: camera.position.x + strikeRay.x * t,
+      y: camera.position.y + strikeRay.y * t,
+      z: camera.position.z + strikeRay.z * t,
+    };
+  }
+  window.sceneStrike = (x, y) => {
+    if (!loop || !loop.state.running || !Number.isFinite(x) || !Number.isFinite(y)) return;
+    const target = strikeTarget(x, y);
+    if (target) strike.strikeAt(target);
+  };
   const gl = renderer.getContext();
   window.plasmaGlobe = {
     ready: true,

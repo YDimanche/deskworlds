@@ -47,7 +47,7 @@ function instancedQuad(array, stride, layout, corners) {
   return { geometry, buffer };
 }
 
-export function createRenderer(canvas, plasma) {
+export function createRenderer(canvas, plasma, strike = null) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: false });
   renderer.setPixelRatio(1);
   renderer.setClearColor(0x000000, 1);
@@ -116,6 +116,9 @@ export function createRenderer(canvas, plasma) {
   add(ribbons.geometry, ribbonMaterial(0), 1);
   // The same channels, reflected in the inside of the back wall at a few percent.
   add(ribbons.geometry, ribbonMaterial(1), 1);
+  // The arcs a strike throws outside the glass ride the same ribbon pass.
+  const strikeRibbons = strike ? instancedQuad(strike.segments, SEGMENT_FLOATS, [['aP0', 0], ['aP1', 4], ['aI', 8]], [[0, -1], [1, -1], [1, 1], [0, 1]]) : null;
+  if (strikeRibbons) add(strikeRibbons.geometry, ribbonMaterial(0), 1);
   const brushes = instancedQuad(plasma.feet, 8, [['aFoot', 0], ['aTangent', 4]], [[-1, -1], [1, -1], [1, 1], [-1, 1]]);
   add(brushes.geometry, new THREE.ShaderMaterial({
     uniforms: shared, vertexShader: FOOT_VERT, fragmentShader: FOOT_FRAG, transparent: true, depthWrite: false, depthTest: true,
@@ -166,6 +169,10 @@ export function createRenderer(canvas, plasma) {
     for (let i = 0; i < roots.length; i++) roots[i].fromArray(plasma.roots, i * 4);
     ribbons.geometry.instanceCount = s.segmentCount;
     ribbons.buffer.needsUpdate = true;
+    if (strikeRibbons) {
+      strikeRibbons.geometry.instanceCount = strike.state.segmentCount;
+      strikeRibbons.buffer.needsUpdate = true;
+    }
     brushes.geometry.instanceCount = s.footCount;
     brushes.buffer.needsUpdate = true;
     back.normal.copy(camera.position).normalize();

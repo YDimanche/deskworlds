@@ -4,3 +4,8 @@ node_modules/
 /aquarium-shader-improved.zip
 /review/
 iterations/
+.tools/
+dist/
+windows/Deskworlds/bin/
+windows/Deskworlds/obj/
+*.user

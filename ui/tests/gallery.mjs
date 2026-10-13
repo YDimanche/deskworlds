@@ -10,7 +10,7 @@ function setup(reduceMotion = false) {
   let now = 0;
   const handlers = {};
   const classes = new Set();
-  const portals = ['Riverbed', 'Coral reef', 'Betta', 'Plasma globe'].map(name => ({
+  const portals = ['河床', '珊瑚礁', '斗鱼', '等离子球'].map(name => ({
     offsetWidth: 1000,
     style: { setProperty() {} },
     classList: { toggle(name, on) { this.active = on; } },
@@ -222,14 +222,14 @@ const wheelEvent = (deltaX, deltaY) => ({ deltaX, deltaY, deltaMode: 0, preventD
   const selected = () => app.portals.findIndex(portal => portal.classList.active);
   app.handlers.keydown({ key: 'ArrowLeft', preventDefault() {} });
   assert.equal(selected(), 3, 'going left from the first portal wraps to the last');
-  assert.equal(app.status.textContent, 'Plasma globe');
+  assert.equal(app.status.textContent, '等离子球');
   assert.equal(app.portals[3].role, undefined, 'the selected portal is a link');
   assert.equal(app.portals[0].role, 'button', 'the others select rather than open');
   for (const expected of [0, 1, 2, 3, 0]) {
     app.handlers.keydown({ key: 'ArrowRight', preventDefault() {} });
     assert.equal(selected(), expected, 'going right visits every portal in order and wraps');
   }
-  assert.equal(app.portals[0]['aria-label'], 'Open Riverbed');
+  assert.equal(app.portals[0]['aria-label'], '打开河床');
 }
 {
   const app = setup(true);

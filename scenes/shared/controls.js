@@ -13,16 +13,16 @@ export function installControls({ stage, isPaused, isRunning, pause, feed, quali
   const feedButton = document.querySelector('#feed');
   const select = document.querySelector('#quality');
   const fullscreenButton = document.querySelector('#fullscreen');
-  setActionIcon(feedButton, 'feed', 'Feed');
+  setActionIcon(feedButton, 'feed', '投喂');
   function refreshFullscreen() {
     const active = Boolean(document.fullscreenElement);
-    setActionIcon(fullscreenButton, active ? 'exit-fullscreen' : 'fullscreen', active ? 'Exit fullscreen' : 'Fullscreen', 'F');
+    setActionIcon(fullscreenButton, active ? 'exit-fullscreen' : 'fullscreen', active ? '退出全屏' : '全屏', 'F');
   }
   document.addEventListener('fullscreenchange', refreshFullscreen);
   refreshFullscreen();
   function refresh() {
     if (pauseButton) {
-      setActionIcon(pauseButton, isPaused() ? 'play' : 'pause', isPaused() ? 'Play' : 'Pause', 'Space');
+      setActionIcon(pauseButton, isPaused() ? 'play' : 'pause', isPaused() ? '播放' : '暂停', '空格');
       pauseButton.setAttribute('aria-pressed', String(isPaused()));
     }
     if (feedButton) feedButton.disabled = !isRunning();
@@ -67,9 +67,9 @@ export function reportSceneError(error) {
   const box = document.querySelector('#error');
   if (!box) return;
   box.hidden = false;
-  box.replaceChildren(document.createTextNode('This world could not start. '));
+  box.replaceChildren(document.createTextNode('这个世界无法启动。 '));
   const reload = document.createElement('a');
   reload.href = location.href;
-  reload.textContent = 'Reload world';
+  reload.textContent = '重新加载世界';
   box.append(reload);
 }

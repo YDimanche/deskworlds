@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Deskworlds</AssemblyName>
+    <RootNamespace>Deskworlds</RootNamespace>
+    <Version>1.1.0</Version>
+    <Product>Deskworlds</Product>
+    <Description>Interactive, living desktop wallpapers for Windows</Description>
+    <ApplicationIcon>Deskworlds.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\scenes\**\*.*" Exclude="..\..\scenes\**\tests\**">
+      <Link>scenes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <TargetPath>scenes\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\vendor\**\*.*">
+      <Link>vendor\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <TargetPath>vendor\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\ui\**\*.*" Exclude="..\..\ui\tests\**">
+      <Link>ui\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <TargetPath>ui\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
